@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2020 Productions | Work Planner</title>
+  <meta name="description" content="Work Planner - Team calendars" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at 20% 20%, #101727, #0b0f17 60%);
+      --card-bg: rgba(255,255,255,0.06);
+      --card-border: rgba(255,255,255,0.15);
+      --accent: #4f9cff;
+      --accent-hover: #2d7ee0;
+      --text-primary: #ffffff;
+      --text-dim: #c3cbd6;
+      --danger: #ff5f56;
+      --warn: #ffcb2e;
+      --ok: #27c93f;
+      --focus-ring: 0 0 0 3px rgba(79,156,255,0.4);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 1.2rem clamp(1.2rem, 4vw, 3rem);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(12px);
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+      border-bottom: 1px solid var(--card-border);
+    }
+    .branding {
+      display: flex;
+      align-items: center;
+      gap: .85rem;
+      font-weight: 600;
+      letter-spacing: .5px;
+    }
+    .logo-circle {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg,#4f9cff,#7f5eff 60%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: .9rem;
+      box-shadow: 0 6px 16px -6px rgba(79,156,255,0.6);
+    }
+    .page-title {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 600;
+      margin: 0;
+    }
+    main {
+      width: 100%;
+      max-width: 1350px;
+      margin: 1.5rem auto 4rem;
+      padding: 0 clamp(1rem, 4vw, 2rem);
+      flex: 1;
+    }
+    .grid {
+      display: grid;
+      gap: 1.6rem;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    .team-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: .85rem;
+      padding: 1.15rem 1.15rem 1.3rem;
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      background: var(--card-bg);
+      backdrop-filter: blur(24px) saturate(160%);
+      transition: border-color .25s, transform .25s;
+      overflow: hidden;
+    }
+    .team-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(79,156,255,0.15), transparent 55%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .35s;
+    }
+    .team-card:hover { border-color: rgba(79,156,255,0.55); transform: translateY(-4px); }
+    .team-card:hover::before { opacity: 1; }
+    .team-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .member-buttons { display: flex; flex-wrap: wrap; gap: .6rem; }
+    button.member {
+      --btn-bg: rgba(255,255,255,0.09);
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: var(--btn-bg);
+      color: var(--text-primary);
+      font-size: .75rem;
+      font-weight: 500;
+      padding: .55rem .85rem .5rem;
+      border-radius: 14px;
+      cursor: pointer;
+      letter-spacing: .3px;
+      position: relative;
+      transition: background .25s, border-color .25s, transform .25s;
+    }
+    button.member:hover { background: rgba(79,156,255,0.25); border-color: var(--accent); }
+    button.member:active { transform: scale(.95); }
+    button.member:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+    .footer-note {
+      margin-top: 3rem;
+      text-align: center;
+      font-size: .7rem;
+      letter-spacing: .5px;
+      color: var(--text-dim);
+      opacity: .75;
+    }
+    @media (min-width: 1400px) { .grid { grid-template-columns: repeat(auto-fill, minmax(320px,1fr)); } }
+    @media (max-width: 640px){ header { flex-direction: column; align-items: flex-start; gap: .9rem; } }
+    /* Simple toast */
+    .toast { position: fixed; bottom: 18px; right: 18px; background: #1d2938; color: #fff; padding: .8rem 1rem; border-radius: 12px; font-size: .75rem; box-shadow: 0 6px 20px -6px rgba(0,0,0,.5); opacity: 0; transform: translateY(16px); transition: opacity .35s, transform .35s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="branding">
+      <div class="logo-circle" aria-hidden="true">2020</div>
+      <div>
+        <div style="font-size:.85rem; font-weight:600; color:var(--text-dim); line-height:1.05;">2020 Productions</div>
+        <h1 class="page-title">Work Planner</h1>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="grid" id="teams"></div>
+    <div class="footer-note">Built for quick overview & jump navigation.</div>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>
+    // Configuration: Insert actual calendar URLs here.
+    // For each member: { name: 'Name', url: 'https://calendar-link' }
+    // Leave url as '#' to indicate missing / pending assignment.
+    const TEAM_DATA = [
+      { 
+        team: 'TeamA', 
+        members: [
+          { name: 'Dharma', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612074517-5/c96d2f057aed7e3' },
+          { name: 'Balaji', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075669-5/ed2a7ab7ac9ea5c' },
+          { name: 'Quayyum', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075671-5/599747135e8b765' },
+          { name: 'Latha', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075672-5/03cf35386d167c7' }
+        ]
+      },
+      { 
+        team: 'Youtube', 
+        members: [
+          { name: 'Ravi', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075677-5/d492f6470d2085f' },
+          { name: 'Babu', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075679-5/56eab969db1ab0e' },
+          { name: 'Benarji', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075682-5/d76f76b52663dc9' },
+          { name: 'Avinash', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075688-5/a12e55bfb84c54c' }
+        ]
+      },
+      { 
+        team: 'Doondi Rakesh', 
+        members: [
+          { name: 'Krishna', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075749-5/4f19524ec3365b6' }
+        ]
+      },
+      { 
+        team: 'AI Team', 
+        members: [
+          { name: 'Sowmya', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075767-5/c4f78895a8e2d63' },
+          { name: 'Sailaja', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075766-5/9d740e8522397d4' },
+          { name: 'Nishitha', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075764-5/d24f8a2ec6fc572' },
+          { name: 'Vamsi', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075759-5/4e21c378b842711' },
+          { name: 'Prashanth', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075760-5/3c1ff6d939c57e1' }
+        ]
+      },
+      { 
+        team: 'Management', 
+        members: [
+          { name: 'Zafhar', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075770-5/183068e5af41154' },
+          { name: 'Vivek', url: 'https://sharing.clickup.com/90161345271/c/h/6-901612075771-5/e622c98845866ad' }
+        ]
+      }
+    ];
+
+    const teamsContainer = document.getElementById('teams');
+    const toastEl = document.getElementById('toast');
+
+    function showToast(msg, timeout = 3200) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => toastEl.classList.remove('show'), timeout);
+    }
+
+    function renderTeams() {
+      TEAM_DATA.forEach(({ team, members }) => {
+        const card = document.createElement('section');
+        card.className = 'team-card';
+        const title = document.createElement('h2');
+        title.className = 'team-title';
+        title.textContent = team;
+        card.appendChild(title);
+        const wrap = document.createElement('div');
+        wrap.className = 'member-buttons';
+        members.forEach(member => {
+          const btn = document.createElement('button');
+          btn.className = 'member';
+          btn.type = 'button';
+          btn.textContent = member.name;
+          btn.dataset.name = member.name;
+          btn.dataset.url = member.url;
+          btn.addEventListener('click', () => handleMemberClick(member));
+          wrap.appendChild(btn);
+        });
+        card.appendChild(wrap);
+        teamsContainer.appendChild(card);
+      });
+    }
+
+    function handleMemberClick(member) {
+      if (!member.url || member.url === '#') {
+        showToast(`Calendar link for ${member.name} not set.`);
+        return;
+      }
+      window.open(member.url, '_blank', 'noopener');
+    }
+
+    renderTeams();
+  </script>
+</body>
+</html>
